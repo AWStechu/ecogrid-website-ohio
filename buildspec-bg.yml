@@ -1,0 +1,74 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo Build started on `date`
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build --platform linux/amd64 -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Creating task definition for blue-green deployment...
+      - |
+        # Update task definition with new image
+        sed -i "s/ACCOUNT_ID/$AWS_ACCOUNT_ID/g" blue-green-taskdef.json
+        sed -i "s|ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/ecogrid-app:latest|$REPOSITORY_URI:$IMAGE_TAG|g" blue-green-taskdef.json
+        
+        # Register new task definition
+        TASK_DEF_ARN=$(aws ecs register-task-definition \
+          --cli-input-json file://blue-green-taskdef.json \
+          --query 'taskDefinition.taskDefinitionArn' \
+          --output text)
+        
+        echo "New task definition: $TASK_DEF_ARN"
+        
+        # Create CodeDeploy deployment
+        cat > deployment-config.json << EOF
+        {
+          "applicationName": "ecogrid-app",
+          "deploymentGroupName": "ecogrid-bg-dg",
+          "revision": {
+            "revisionType": "AppSpecContent",
+            "appSpecContent": {
+              "content": "$(cat appspec-bg.yml | sed "s/<TASK_DEFINITION>/$TASK_DEF_ARN/" | base64 -w 0)"
+            }
+          },
+          "deploymentConfigName": "CodeDeployDefault.ECSBlueGreenCanary10Percent5Minutes",
+          "description": "Blue-Green deployment for build $CODEBUILD_BUILD_NUMBER",
+          "autoRollbackConfiguration": {
+            "enabled": true,
+            "events": ["DEPLOYMENT_FAILURE", "DEPLOYMENT_STOP_ON_ALARM"]
+          }
+        }
+        EOF
+        
+        # Start deployment
+        DEPLOYMENT_ID=$(aws deploy create-deployment \
+          --cli-input-json file://deployment-config.json \
+          --query 'deploymentId' \
+          --output text)
+        
+        echo "Started CodeDeploy deployment: $DEPLOYMENT_ID"
+        
+        # Wait for deployment to complete
+        echo "Waiting for deployment to complete..."
+        aws deploy wait deployment-successful --deployment-id $DEPLOYMENT_ID
+        
+        echo "Blue-Green deployment completed successfully!"
+
+artifacts:
+  files:
+    - blue-green-taskdef.json
+    - appspec-bg.yml
+    - scripts/**/*

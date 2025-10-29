@@ -1,0 +1,18 @@
+{
+  "version": "0.0",
+  "Resources": [
+    {
+      "TargetService": {
+        "Type": "AWS::ECS::Service",
+        "Properties": {
+          "TaskDefinition": "arn:aws:ecs:us-east-1:442042546183:task-definition/ecogrid-app-bg:11",
+          "LoadBalancerInfo": {
+            "ContainerName": "ecogrid-container",
+            "ContainerPort": 5000
+          },
+          "PlatformVersion": "1.4.0"
+        }
+      }
+    }
+  ]
+}

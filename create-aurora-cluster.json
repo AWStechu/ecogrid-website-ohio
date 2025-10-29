@@ -1,0 +1,14 @@
+{
+  "DBClusterIdentifier": "ecogrid-aurora-cluster",
+  "Engine": "aurora-mysql",
+  "EngineVersion": "8.0.mysql_aurora.3.02.0",
+  "MasterUsername": "admin",
+  "MasterUserPassword": "EcoGrid2025!",
+  "DatabaseName": "ecogrid",
+  "BackupRetentionPeriod": 7,
+  "PreferredBackupWindow": "03:00-04:00",
+  "PreferredMaintenanceWindow": "sun:04:00-sun:05:00",
+  "StorageEncrypted": true,
+  "EnableCloudwatchLogsExports": ["error", "general", "slowquery"],
+  "DeletionProtection": false
+}
