@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - EcoGrid Dynamics</title>
+    <style>
+        :root {
+            --primary-green: #63c82d;
+            --dark-green: #4a9625;
+            --light-green: #85d959;
+            --dark-bg: #1f271b;
+            --light-bg: #f6f7f5;
+            --text-primary: #1f271b;
+            --text-secondary: #5a6b52;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background: var(--light-bg); color: var(--text-primary); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        header { background: var(--primary-green); color: white; padding: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        nav ul { list-style: none; display: flex; align-items: center; }
+        nav li { margin-right: 2rem; }
+        nav a { color: white; text-decoration: none; font-weight: 500; }
+        .user-info { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+        .logout-btn { background: #ff6b35; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none; }
+        
+        .dashboard { padding: 2rem 0; }
+        .welcome { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .welcome h1 { color: var(--primary-green); margin-bottom: 0.5rem; }
+        
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: var(--primary-green); }
+        .stat-label { color: var(--text-secondary); margin-top: 0.5rem; }
+        
+        .billing-section { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .billing-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .billing-table th, .billing-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        .billing-table th { background: var(--light-bg); color: var(--text-primary); font-weight: 600; }
+        .billing-table tr:hover { background: #f9f9f9; }
+        
+        .no-data { text-align: center; color: var(--text-secondary); padding: 2rem; }
+        .savings-highlight { background: linear-gradient(135deg, var(--primary-green), var(--dark-green)); color: white; padding: 1rem; border-radius: 10px; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/projects">Projects</a></li>
+                    <li><a href="/join-community">Join Community</a></li>
+                    <div class="user-info">
+                        <span>Welcome, {{ current_user.username }}!</span>
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </div>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="dashboard">
+        <div class="container">
+            <div class="welcome">
+                <h1>Your Energy Dashboard</h1>
+                <p>Track your electricity usage and savings with EcoGrid's clean energy solutions</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ "%.1f"|format(total_kwh) }}</div>
+                    <div class="stat-label">Total kWh Used</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${{ "%.2f"|format(total_amount) }}</div>
+                    <div class="stat-label">Total Amount</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ "%.1f"|format(avg_monthly_usage) }}</div>
+                    <div class="stat-label">Avg Monthly kWh</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$0.08</div>
+                    <div class="stat-label">Rate per kWh</div>
+                </div>
+            </div>
+            
+            <div class="billing-section">
+                <h2>Your Billing History</h2>
+                {% if billing_data %}
+                <table class="billing-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>kWh Used</th>
+                            <th>Rate per kWh</th>
+                            <th>Total Amount</th>
+                            <th>Bill Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in billing_data %}
+                        <tr>
+                            <td>{{ bill[0] }}</td>
+                            <td>{{ "%.2f"|format(bill[1]) }}</td>
+                            <td>${{ "%.4f"|format(bill[2]) }}</td>
+                            <td>${{ "%.2f"|format(bill[3]) }}</td>
+                            <td>{{ bill[4] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <div class="savings-highlight">
+                    <h3>💰 Your EcoGrid Savings</h3>
+                    <p>Compared to traditional providers at $0.12-$0.15/kWh, you're saving approximately <strong>${{ "%.2f"|format((total_kwh * 0.04)) }}</strong> with our $0.08/kWh rate!</p>
+                </div>
+                {% else %}
+                <div class="no-data">
+                    <p>No billing data available yet. Contact support if you believe this is an error.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</body>
+</html>

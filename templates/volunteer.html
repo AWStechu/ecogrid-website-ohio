@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Login - EcoGrid Dynamics</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #63c82d;
+            --dark-green: #4a9625;
+            --light-green: #85d959;
+            --dark-bg: #1f271b;
+            --light-bg: #f6f7f5;
+            --text-primary: #1f271b;
+            --text-secondary: #5a6b52;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--light-bg) 0%, #e8f5e8 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(99, 200, 45, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-green);
+        }
+
+        .cta-button {
+            background: var(--primary-green);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .cta-button:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        /* Login Section */
+        .login-section {
+            padding: 120px 0 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            background: white;
+            padding: 60px 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .login-header {
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .login-header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid rgba(99, 200, 45, 0.2);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            background: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .btn {
+            background: var(--primary-green);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.125rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 32px;
+        }
+
+        .btn:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        .message {
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .success {
+            background: rgba(99, 200, 45, 0.1);
+            color: var(--dark-green);
+            border: 1px solid rgba(99, 200, 45, 0.3);
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.1);
+            color: #c62828;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .forgot-password {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .forgot-password a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .new-customer {
+            margin-top: 32px;
+            padding: 24px;
+            background: rgba(99, 200, 45, 0.05);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .new-customer h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .new-customer p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .new-customer a {
+            background: var(--primary-green);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .new-customer a:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-primary);
+            color: white;
+            text-align: center;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            margin-bottom: 30px;
+        }
+
+        .footer-content p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">EcoGrid Dynamics</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/projects">Projects</a></li>
+                <li><a href="/join-community">Join the Community</a></li>
+                <li><a href="/#pricing">Pricing</a></li>
+            </ul>
+            <a href="/login" class="cta-button">Join Us</a>
+        </nav>
+    </header>
+
+    <section class="login-section">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Customer Login</h1>
+                <p>Access your EcoGrid account to view billing, usage, and manage your clean energy service</p>
+            </div>
+            
+            <form id="loginForm" method="POST" action="/login">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign In to Account
+                </button>
+            </form>
+            
+            <div id="message"></div>
+            
+            <div class="forgot-password">
+                <a href="#forgot">Forgot your password?</a>
+            </div>
+            
+            <div class="new-customer">
+                <h3>New to EcoGrid?</h3>
+                <p>Switch to clean energy and start saving money today</p>
+                <a href="/join">Check Eligibility</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 EcoGrid Dynamics. Electrifying the future sustainably.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Handle form submission messages
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const messageDiv = document.getElementById('message');
+        
+        if (error === 'invalid') {
+            messageDiv.innerHTML = '<div class="message error"><i class="fas fa-exclamation-circle"></i> Invalid username or password. Please try again.</div>';
+        }
+        
+        // Handle cross-page navigation to pricing section
+        if (window.location.hash === '#pricing') {
+            // Redirect to home page with pricing hash
+            window.location.href = '/#pricing';
+        }
+        
+        // Handle pricing link clicks
+        document.querySelectorAll('a[href="/#pricing"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '/#pricing';
+            });
+        });
+    </script>
+</body>
+</html>

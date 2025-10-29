@@ -1,0 +1,151 @@
+name: Blue-Green Deploy EcoGrid to AWS
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: ecogrid-app
+  ECS_CLUSTER: ecogrid-cluster
+  ECS_SERVICE: ecogrid-service-bg
+  CONTAINER_NAME: ecogrid-container
+  CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+
+jobs:
+  deploy:
+    name: Blue-Green Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    - name: Update task definition and deploy
+      id: deploy
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Get current task definition
+        aws ecs describe-task-definition --task-definition ecogrid-app-bg --query taskDefinition > task-definition.json
+        
+        # Update image and ensure database auth environment variables
+        jq --arg IMAGE_URI "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" '
+          .containerDefinitions[0].image = $IMAGE_URI |
+          .containerDefinitions[0].environment = [
+            {"name": "DB_NAME", "value": "ecogrid"},
+            {"name": "DB_HOST", "value": "ecogrid-aurora-private.cluster-ckbygg2eq2ic.us-east-1.rds.amazonaws.com"},
+            {"name": "AUTH_METHOD", "value": "database"},
+            {"name": "DB_USER", "value": "admin"},
+            {"name": "DB_PASSWORD", "value": "EcoGrid2025!"},
+            {"name": "USE_COGNITO", "value": "false"}
+          ] |
+          .containerDefinitions[0].healthCheck = {
+            "command": ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen(\\\"http://localhost:5000/health\\\")\" || exit 1"],
+            "interval": 30,
+            "timeout": 5,
+            "retries": 3,
+            "startPeriod": 60
+          }
+        ' task-definition.json > updated-task-definition.json
+        
+        # Clean task definition for registration
+        jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' updated-task-definition.json > clean-task-definition.json
+        
+        # Register new task definition
+        TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://clean-task-definition.json --query 'taskDefinition.taskDefinitionArn' --output text)
+        
+        echo "New task definition: $TASK_DEF_ARN"
+        
+        # Create CodeDeploy deployment
+        APPSPEC_CONTENT=$(cat << EOF
+        {
+          "version": "0.0",
+          "Resources": [
+            {
+              "TargetService": {
+                "Type": "AWS::ECS::Service",
+                "Properties": {
+                  "TaskDefinition": "$TASK_DEF_ARN",
+                  "LoadBalancerInfo": {
+                    "ContainerName": "ecogrid-container",
+                    "ContainerPort": 5000
+                  },
+                  "PlatformVersion": "1.4.0"
+                }
+              }
+            }
+          ]
+        }
+        EOF
+        )
+        
+        # Create deployment
+        DEPLOYMENT_ID=$(aws deploy create-deployment \
+          --application-name ecogrid-app \
+          --deployment-group-name ecogrid-deployment-gp \
+          --revision "revisionType=AppSpecContent,appSpecContent={content=\"$(echo $APPSPEC_CONTENT | jq -c . | sed 's/"/\\"/g')\"}" \
+          --query 'deploymentId' --output text)
+        
+        echo "CodeDeploy deployment created: $DEPLOYMENT_ID"
+        echo "deployment-id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+
+    - name: Wait for deployment to complete
+      run: |
+        echo "Waiting for CodeDeploy deployment to complete..."
+        aws deploy wait deployment-successful --deployment-id ${{ steps.deploy.outputs.deployment-id }}
+        echo "Deployment completed successfully!"
+
+    - name: Verify deployment
+      run: |
+        echo "Verifying deployment..."
+        curl -f http://ecogrid-alb-492743554.us-east-1.elb.amazonaws.com/health
+        echo "Deployment verification successful!"
+
+    - name: Invalidate CloudFront cache
+      if: env.CLOUDFRONT_DISTRIBUTION_ID != ''
+      run: |
+        echo "Invalidating CloudFront cache..."
+        aws cloudfront create-invalidation \
+          --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+          --paths "/*" "/index.html" "/static/*" \
+          --query 'Invalidation.{Id:Id,Status:Status}' \
+          --output table
+        echo "CloudFront cache invalidation initiated!"
+
+    - name: Deployment Summary
+      run: |
+        echo "🎉 Deployment Complete!"
+        echo "✅ Blue-Green deployment successful"
+        echo "✅ Application health verified"
+        echo "✅ CloudFront cache invalidated"
+        echo ""
+        echo "🌐 Website URLs:"
+        echo "- Custom Domain: http://whatsnewcustomer.com"
+        echo "- Direct ALB: http://ecogrid-alb-492743554.us-east-1.elb.amazonaws.com"
+        if [ -n "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
+          echo "- CloudFront: https://[distribution-domain].cloudfront.net"
+        fi

@@ -1,0 +1,32 @@
+{
+  "description": "ECS task termination test for auto-scaling validation",
+  "roleArn": "arn:aws:iam::442042546183:role/FISExperimentRole",
+  "actions": {
+    "StopTasks": {
+      "actionId": "aws:ecs:stop-task",
+      "description": "Stop ECS tasks to trigger auto-scaling",
+      "targets": {
+        "Tasks": "ECSTasksTarget"
+      }
+    }
+  },
+  "targets": {
+    "ECSTasksTarget": {
+      "resourceType": "aws:ecs:task",
+      "resourceTags": {},
+      "selectionMode": "PERCENT(50)",
+      "parameters": {
+        "cluster": "ecogrid-cluster",
+        "service": "ecogrid-service-bg"
+      }
+    }
+  },
+  "stopConditions": [
+    {
+      "source": "none"
+    }
+  ],
+  "tags": {
+    "Name": "EcoGrid-AutoScaling-Test"
+  }
+}

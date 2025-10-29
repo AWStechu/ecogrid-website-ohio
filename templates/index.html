@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoGrid Dynamics - Powering Tomorrow's Sustainable Energy Grid</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #63c82d;
+            --dark-green: #4a9625;
+            --light-green: #b085d9;
+            --dark-bg: #1f271b;
+            --light-bg: #f6f7f5;
+            --text-primary: #1f271b;
+            --text-secondary: #5a6b52;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(99, 200, 45, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-green);
+        }
+
+        .cta-button {
+            background: var(--primary-green);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .cta-button:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--light-bg) 0%, #e8f5e8 100%);
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -10%;
+            width: 50%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%2363c82d" opacity="0.1"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-20px) rotate(360deg); }
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        .hero-text p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            padding: 16px 32px;
+            border: 2px solid var(--primary-green);
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        /* Map Section */
+        .map-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .section-header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #map {
+            height: 500px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 80px 0;
+            background: var(--light-bg);
+        }
+
+        .pricing-comparison {
+            margin-top: 60px;
+        }
+
+        .comparison-table {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .provider-column {
+            background: white;
+            border-radius: 16px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            position: relative;
+            transition: transform 0.3s;
+        }
+
+        .provider-column.ecogrid {
+            border: 3px solid var(--primary-green);
+            transform: scale(1.05);
+        }
+
+        .provider-column:hover {
+            transform: translateY(-8px);
+        }
+
+        .provider-column.ecogrid:hover {
+            transform: scale(1.05) translateY(-8px);
+        }
+
+        .provider-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .provider-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 8px;
+        }
+
+        .competitor .price {
+            color: #e53e3e;
+        }
+
+        .price span {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            background: var(--primary-green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .features {
+            list-style: none;
+        }
+
+        .features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+
+        .features i {
+            margin-right: 12px;
+            width: 16px;
+        }
+
+        .features .fa-check {
+            color: var(--primary-green);
+        }
+
+        .features .fa-times {
+            color: #e53e3e;
+        }
+
+        .savings-calculator {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .savings-calculator h3 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .savings-calculator p {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .savings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .savings-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .savings-item .provider {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .savings-item .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .savings-item.highlight .provider {
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        .savings-item.highlight .amount {
+            color: var(--primary-green);
+            font-size: 2rem;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 80px 0;
+            background: var(--dark-bg);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 8px;
+        }
+
+        .stat-item p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-green);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--primary-green);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-table {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .provider-column.ecogrid {
+                transform: none;
+                order: -1;
+            }
+            
+            .savings-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">  Dynamic Ecogrid  </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/projects">Projects</a></li>
+                <li><a href="/join-community">Join the Community</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+            </ul>
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="/login" class="cta-button">Join Us</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Powering Tomorrow's Sustainable Energy Grid</h1>
+                    <p>Leading the transition to clean, renewable electricity through innovative grid solutions and community-driven green initiatives.</p>
+                    <div class="hero-buttons">
+                        <a href="/projects" class="btn-primary">
+                            <i class="fas fa-bolt"></i>
+                            Explore Projects
+                        </a>
+                        <a href="/join-community" class="btn-secondary">Join the Community</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div style="width: 100%; height: 400px; background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c8 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                        <!-- Animated grid background -->
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: repeating-linear-gradient(0deg, rgba(99, 200, 45, 0.1) 0px, transparent 1px, transparent 20px, rgba(99, 200, 45, 0.1) 21px), repeating-linear-gradient(90deg, rgba(99, 200, 45, 0.1) 0px, transparent 1px, transparent 20px, rgba(99, 200, 45, 0.1) 21px);"></div>
+                        
+                        <!-- Solar panels -->
+                        <div style="position: absolute; top: 60px; left: 50px;">
+                            <div style="width: 80px; height: 30px; background: linear-gradient(135deg, #ffa726, #ffcc02); border-radius: 4px; margin-bottom: 5px;"></div>
+                            <div style="width: 80px; height: 30px; background: linear-gradient(135deg, #ffa726, #ffcc02); border-radius: 4px; margin-bottom: 5px;"></div>
+                            <div style="width: 80px; height: 30px; background: linear-gradient(135deg, #ffa726, #ffcc02); border-radius: 4px;"></div>
+                        </div>
+                        
+                        <!-- Wind turbines -->
+                        <div style="position: absolute; top: 40px; right: 80px;">
+                            <div style="width: 4px; height: 80px; background: #42a5f5; margin: 0 auto;"></div>
+                            <div style="width: 12px; height: 12px; background: #42a5f5; border-radius: 50%; margin: -86px auto 0; position: relative;">
+                                <div style="position: absolute; top: 6px; left: 6px; width: 25px; height: 2px; background: #42a5f5; transform: rotate(45deg); transform-origin: 0 0;"></div>
+                                <div style="position: absolute; top: 6px; left: 6px; width: 25px; height: 2px; background: #42a5f5; transform: rotate(165deg); transform-origin: 0 0;"></div>
+                                <div style="position: absolute; top: 6px; left: 6px; width: 25px; height: 2px; background: #42a5f5; transform: rotate(285deg); transform-origin: 0 0;"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Power transmission tower -->
+                        <div style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);">
+                            <div style="width: 4px; height: 60px; background: #666; margin: 0 auto;"></div>
+                            <div style="width: 30px; height: 2px; background: #666; margin: -50px auto 0;"></div>
+                            <div style="width: 40px; height: 2px; background: #666; margin: 15px auto 0;"></div>
+                            <div style="width: 50px; height: 2px; background: #666; margin: 15px auto 0;"></div>
+                        </div>
+                        
+                        <!-- Smart grid nodes -->
+                        <div style="position: absolute; bottom: 80px; left: 100px; width: 16px; height: 16px; background: linear-gradient(135deg, #63c82d, #85d959); border-radius: 50%;"></div>
+                        <div style="position: absolute; bottom: 80px; right: 100px; width: 16px; height: 16px; background: linear-gradient(135deg, #63c82d, #85d959); border-radius: 50%;"></div>
+                        
+                        <!-- Houses -->
+                        <div style="position: absolute; bottom: 20px; left: 80px;">
+                            <div style="width: 25px; height: 20px; background: #4a9625; position: relative;">
+                                <div style="width: 0; height: 0; border-left: 12.5px solid transparent; border-right: 12.5px solid transparent; border-bottom: 15px solid #2e7d32; position: absolute; top: -15px; left: 0;"></div>
+                                <div style="width: 6px; height: 8px; background: #81c784; position: absolute; top: 6px; left: 4px;"></div>
+                                <div style="width: 6px; height: 8px; background: #81c784; position: absolute; top: 6px; right: 4px;"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="position: absolute; bottom: 20px; right: 80px;">
+                            <div style="width: 30px; height: 25px; background: #4a9625; position: relative;">
+                                <div style="width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 18px solid #2e7d32; position: absolute; top: -18px; left: 0;"></div>
+                                <div style="width: 7px; height: 10px; background: #81c784; position: absolute; top: 7px; left: 5px;"></div>
+                                <div style="width: 7px; height: 10px; background: #81c784; position: absolute; top: 7px; right: 5px;"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Energy flow lines -->
+                        <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                            <path d="M 130 120 Q 200 140 280 120 Q 350 100 420 120" stroke="#63c82d" stroke-width="2" fill="none" opacity="0.7"/>
+                            <circle r="4" fill="#63c82d" opacity="0.8">
+                                <animateMotion dur="3s" repeatCount="indefinite">
+                                    <path d="M 130 120 Q 200 140 280 120 Q 350 100 420 120"/>
+                                </animateMotion>
+                            </circle>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="map-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our National Impact</h2>
+                <p>EcoGrid Dynamics serves communities across the United States with clean energy infrastructure and sustainable power solutions.</p>
+            </div>
+            <div id="map"></div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>Unbeatable Energy Rates</h2>
+                <p>Compare our competitive pricing with other energy providers and see why customers choose EcoGrid</p>
+            </div>
+            <div class="pricing-comparison">
+                <div class="comparison-table">
+                    <div class="provider-column ecogrid">
+                        <div class="provider-header">
+                            <h3>EcoGrid Dynamics</h3>
+                            <div class="price">$0.08<span>/kWh</span></div>
+                            <div class="badge">Best Value</div>
+                        </div>
+                        <ul class="features">
+                            <li><i class="fas fa-check"></i> 100% Renewable Energy</li>
+                            <li><i class="fas fa-check"></i> No Hidden Fees</li>
+                            <li><i class="fas fa-check"></i> 24/7 Customer Support</li>
+                            <li><i class="fas fa-check"></i> Smart Grid Technology</li>
+                            <li><i class="fas fa-check"></i> Carbon Neutral</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="provider-column competitor">
+                        <div class="provider-header">
+                            <h3>PowerCorp Energy</h3>
+                            <div class="price">$0.12<span>/kWh</span></div>
+                        </div>
+                        <ul class="features">
+                            <li><i class="fas fa-times"></i> 60% Renewable Energy</li>
+                            <li><i class="fas fa-times"></i> Connection Fees Apply</li>
+                            <li><i class="fas fa-check"></i> Business Hours Support</li>
+                            <li><i class="fas fa-times"></i> Legacy Infrastructure</li>
+                            <li><i class="fas fa-times"></i> High Carbon Footprint</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="provider-column competitor">
+                        <div class="provider-header">
+                            <h3>National Grid Plus</h3>
+                            <div class="price">$0.15<span>/kWh</span></div>
+                        </div>
+                        <ul class="features">
+                            <li><i class="fas fa-times"></i> 40% Renewable Energy</li>
+                            <li><i class="fas fa-times"></i> Monthly Service Fees</li>
+                            <li><i class="fas fa-times"></i> Limited Support Hours</li>
+                            <li><i class="fas fa-times"></i> Outdated Systems</li>
+                            <li><i class="fas fa-times"></i> High Emissions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="savings-calculator">
+                    <h3>Calculate Your Annual Savings</h3>
+                    <p>Average household uses 10,500 kWh per year</p>
+                    <div class="savings-grid">
+                        <div class="savings-item">
+                            <span class="provider">EcoGrid Dynamics</span>
+                            <span class="amount">$840/year</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="provider">PowerCorp Energy</span>
+                            <span class="amount">$1,260/year</span>
+                        </div>
+                        <div class="savings-item highlight">
+                            <span class="provider">You Save</span>
+                            <span class="amount">$420/year</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>500+</h3>
+                    <p>MW Clean Energy Generated</p>
+                </div>
+                <div class="stat-item">
+                    <h3>25</h3>
+                    <p>Countries Served</p>
+                </div>
+                <div class="stat-item">
+                    <h3>1M+</h3>
+                    <p>Homes Powered</p>
+                </div>
+                <div class="stat-item">
+                    <h3>80%</h3>
+                    <p>Carbon Reduction</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>EcoGrid Dynamics</h4>
+                    <p>Leading the global transition to sustainable electricity through innovative renewable energy solutions and smart grid technology.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><a href="/projects">Solar Projects</a></li>
+                        <li><a href="/projects">Wind Farms</a></li>
+                        <li><a href="/projects">Hydroelectric</a></li>
+                        <li><a href="/projects">Smart Grids</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/projects">Projects</a></li>
+                        <li><a href="/volunteer">Careers</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="/join-community">Join the Community</a></li>
+                        <li><a href="#newsletter">Newsletter</a></li>
+                        <li><a href="#social">Social Media</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 EcoGrid Dynamics. Electrifying the future sustainably.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize interactive world map
+        function initializeMap() {
+            const mapContainer = document.getElementById('map');
+            
+            mapContainer.innerHTML = `
+                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c8 100%); border-radius: 16px; position: relative; overflow: hidden; cursor: grab;">
+                    <!-- US Map SVG -->
+                    <svg style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 65%;" viewBox="0 0 1000 600">
+                        <!-- United States outline -->
+                        <path d="M 100 200 Q 150 180 200 190 Q 300 200 400 190 Q 500 180 600 190 Q 700 200 800 190 Q 850 200 900 210 L 920 250 Q 900 300 880 350 Q 850 400 800 420 Q 700 440 600 430 Q 500 420 400 430 Q 300 440 200 430 Q 150 420 100 400 Q 80 350 90 300 Q 95 250 100 200 Z" 
+                              fill="#4fc3f7" opacity="0.3" stroke="#2196f3" stroke-width="3"/>
+                        
+                        <!-- Alaska -->
+                        <path d="M 50 450 Q 80 430 110 440 Q 140 450 170 460 L 180 480 Q 170 500 150 510 Q 120 520 90 510 Q 60 500 50 480 Z" 
+                              fill="#4fc3f7" opacity="0.3" stroke="#2196f3" stroke-width="2"/>
+                        
+                        <!-- Hawaii -->
+                        <circle cx="250" cy="500" r="8" fill="#4fc3f7" opacity="0.3" stroke="#2196f3" stroke-width="2"/>
+                        <circle cx="270" cy="510" r="6" fill="#4fc3f7" opacity="0.3" stroke="#2196f3" stroke-width="2"/>
+                        <circle cx="290" cy="505" r="5" fill="#4fc3f7" opacity="0.3" stroke="#2196f3" stroke-width="2"/>
+                    </svg>
+                    
+                    <!-- Interactive location markers for US facilities -->
+                    <div class="location-marker" data-info="Corporate Headquarters - New York, NY" style="position: absolute; top: 35%; left: 75%; width: 28px; height: 28px; background: #63c82d; border: 4px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 6px 16px rgba(99, 200, 45, 0.5); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Solar Farm - Phoenix, AZ" style="position: absolute; top: 55%; left: 25%; width: 22px; height: 22px; background: #ffa726; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Wind Farm - Austin, TX" style="position: absolute; top: 60%; left: 40%; width: 22px; height: 22px; background: #42a5f5; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(66, 165, 245, 0.4); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Operations Center - Chicago, IL" style="position: absolute; top: 40%; left: 55%; width: 26px; height: 26px; background: #63c82d; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 5px 14px rgba(99, 200, 45, 0.4); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Hydro Plant - Seattle, WA" style="position: absolute; top: 25%; left: 15%; width: 22px; height: 22px; background: #26c6da; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(38, 198, 218, 0.4); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Smart Grid Hub - San Francisco, CA" style="position: absolute; top: 45%; left: 8%; width: 22px; height: 22px; background: #ab47bc; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(171, 71, 188, 0.4); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Solar Project - Miami, FL" style="position: absolute; top: 70%; left: 75%; width: 22px; height: 22px; background: #ffa726; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Wind Farm - Denver, CO" style="position: absolute; top: 50%; left: 35%; width: 22px; height: 22px; background: #42a5f5; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(66, 165, 245, 0.4); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Regional Office - Atlanta, GA" style="position: absolute; top: 55%; left: 65%; width: 24px; height: 24px; background: #63c82d; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(99, 200, 45, 0.4); z-index: 10;"></div>
+                    
+                    <div class="location-marker" data-info="Hydro Plant - Portland, OR" style="position: absolute; top: 30%; left: 12%; width: 22px; height: 22px; background: #26c6da; border: 3px solid white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(38, 198, 218, 0.4); z-index: 10;"></div>
+                    
+                    <!-- Tooltip -->
+                    <div id="map-tooltip" style="position: absolute; background: rgba(31, 39, 27, 0.95); color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 20; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);"></div>
+                    
+                    <!-- Legend -->
+                    <div style="position: absolute; bottom: 20px; left: 20px; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 12px; font-size: 14px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                        <h4 style="margin: 0 0 12px 0; color: var(--text-primary); font-weight: 600;">US Facilities</h4>
+                        <div style="margin-bottom: 8px;"><span style="display: inline-block; width: 16px; height: 16px; background: #63c82d; border-radius: 50%; margin-right: 12px; border: 2px solid white;"></span>Headquarters & Offices</div>
+                        <div style="margin-bottom: 8px;"><span style="display: inline-block; width: 14px; height: 14px; background: #ffa726; border-radius: 50%; margin-right: 12px; border: 2px solid white;"></span>Solar Projects</div>
+                        <div style="margin-bottom: 8px;"><span style="display: inline-block; width: 14px; height: 14px; background: #42a5f5; border-radius: 50%; margin-right: 12px; border: 2px solid white;"></span>Wind Farms</div>
+                        <div style="margin-bottom: 8px;"><span style="display: inline-block; width: 14px; height: 14px; background: #26c6da; border-radius: 50%; margin-right: 12px; border: 2px solid white;"></span>Hydro Plants</div>
+                        <div><span style="display: inline-block; width: 14px; height: 14px; background: #ab47bc; border-radius: 50%; margin-right: 12px; border: 2px solid white;"></span>Smart Grids</div>
+                    </div>
+                </div>
+            `;
+            
+            // Add marker interactions after creating the map
+            setTimeout(() => {
+                const markers = document.querySelectorAll('.location-marker');
+                const tooltip = document.getElementById('map-tooltip');
+                
+                markers.forEach(marker => {
+                    marker.addEventListener('mouseenter', function(e) {
+                        const info = this.getAttribute('data-info');
+                        tooltip.textContent = info;
+                        tooltip.style.opacity = '1';
+                        const rect = mapContainer.getBoundingClientRect();
+                        tooltip.style.left = (e.clientX - rect.left + 10) + 'px';
+                        tooltip.style.top = (e.clientY - rect.top - 40) + 'px';
+                    });
+                    
+                    marker.addEventListener('mouseleave', function() {
+                        tooltip.style.opacity = '0';
+                    });
+                    
+                    marker.addEventListener('mousemove', function(e) {
+                        const rect = mapContainer.getBoundingClientRect();
+                        tooltip.style.left = (e.clientX - rect.left + 10) + 'px';
+                        tooltip.style.top = (e.clientY - rect.top - 40) + 'px';
+                    });
+                    
+                    marker.addEventListener('click', function() {
+                        const info = this.getAttribute('data-info');
+                        alert(`EcoGrid Facility: ${info}`);
+                    });
+                });
+            }, 100);
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            
+            // Add pulse animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.2); opacity: 0.7; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+                .location-marker:hover {
+                    transform: scale(1.3) !important;
+                    z-index: 15 !important;
+                    animation: pulse 2s infinite;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Add scroll effect to header
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(255, 255, 255, 0.98)';
+                header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+                header.style.boxShadow = 'none';
+            }
+        });
+
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+            
+            const icon = this.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+    </script>
+</body>
+</html>

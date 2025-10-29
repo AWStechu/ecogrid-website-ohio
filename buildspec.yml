@@ -1,0 +1,65 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build --platform linux/amd64 -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
+      
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
+      
+      - echo Updating ECS task definition...
+      - aws ecs describe-task-definition --task-definition ecogrid-app-bg --query taskDefinition > task-definition.json
+      - jq --arg IMAGE_URI "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG" '.containerDefinitions[0].image = $IMAGE_URI' task-definition.json > updated-task-definition.json
+      - jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' updated-task-definition.json > clean-task-definition.json
+      
+      - echo Registering new task definition...
+      - NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://clean-task-definition.json --query 'taskDefinition.taskDefinitionArn' --output text)
+      - echo "New task definition: $NEW_TASK_DEF"
+      
+      - echo Creating CodeDeploy deployment...
+      - |
+        APPSPEC_CONTENT=$(cat << EOF
+        {
+          "version": "0.0",
+          "Resources": [
+            {
+              "TargetService": {
+                "Type": "AWS::ECS::Service",
+                "Properties": {
+                  "TaskDefinition": "$NEW_TASK_DEF",
+                  "LoadBalancerInfo": {
+                    "ContainerName": "ecogrid-container",
+                    "ContainerPort": 5000
+                  },
+                  "PlatformVersion": "1.4.0"
+                }
+              }
+            }
+          ]
+        }
+        EOF
+        )
+      - DEPLOYMENT_ID=$(aws deploy create-deployment --application-name ecogrid-app --deployment-group-name ecogrid-deployment-gp --revision "revisionType=AppSpecContent,appSpecContent={content=\"$(echo $APPSPEC_CONTENT | jq -c . | sed 's/"/\\"/g')\"}" --query 'deploymentId' --output text)
+      - echo "Deployment ID: $DEPLOYMENT_ID"
+      - echo "Monitor at: https://console.aws.amazon.com/codesuite/codedeploy/deployments/$DEPLOYMENT_ID"
+
+artifacts:
+  files:
+    - '**/*'
